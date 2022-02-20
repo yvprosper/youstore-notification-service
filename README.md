@@ -1,1 +1,0 @@
-# youstore-notification-service
