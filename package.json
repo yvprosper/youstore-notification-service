@@ -1,7 +1,7 @@
 {
   "name": "youstore-notification-service",
   "version": "1.0.0",
-  "main": "start.Js",
+  "main": "start.js",
   "repository": "https://github.com/yvprosper/youstore-notification-service.git",
   "author": "yvprosper <prosper@youverify.co>",
   "license": "MIT",
