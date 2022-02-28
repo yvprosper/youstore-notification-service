@@ -16,7 +16,7 @@ const {
     error: console.error,
   };
 
-// Create a connetion manager
+// Create a connection manager
 const amqp_url = process.env.AMQP_URL || "";
 logger.info("Connecting to RabbitMq...");
 const connection = amqp.connect(amqp_url);
@@ -42,54 +42,54 @@ const channelWrapper = connection.createChannel({
         channel.consume(`verify_customer_email`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
+            
             let email = message.saveCustomer.email
             let link = message.link
-            console.log(message, link, email)
+            let name = message.saveCustomer.fullName
             try{
-            await sendVerificationMail(email , link)
+            await sendVerificationMail(email , link, name)
+
             } catch (error) {
-                throw error
+                channel.nack(message)
             }
-        })
+        }, {noAck: true})
 
         channel.consume(`verify_merchant_email`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
-            console.log(message)
             let email = message.saveMerchant.email
+            let name = message.saveMerchant.fullName
             let link = message.link
             try{
-            await sendVerificationMail(email , link)
+            await sendVerificationMail(email , link, name)
             } catch (error) {
-                throw error
+                channel.nack(message)
             }
-        })
+        }, {noAck: true})
 
         channel.consume(`reset_customer_password`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
-            console.log(message)
             let email = message.customer.email
             let link = message.link
             try{
             await sendPasswordResetMail(email , link)
             } catch (error) {
-                throw error
+                channel.nack(message)
             }
-        })
+        }, {noAck: true})
 
         channel.consume(`reset_merchant_password`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
-            console.log(message.link)
             let email = message.merchant.email
             let link = message.link
             try{
             await sendPasswordResetMail(email , link)
             } catch (error) {
-                throw error
+                channel.nack(message)
             }
-        })
+        }, {noAck: true})
     }
 })
 
