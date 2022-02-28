@@ -4,7 +4,7 @@ dotenv.config()
 const config = {
   
     auth: process.env.DATABASE_IS_AUTH,
-    httpPort: process.env.HTTP_PORT,
+    httpPort:  process.env.PORT || process.env.HTTP_PORT,
     port: process.env.DATABASE_PORT,
     host: process.env.DATABASE_HOST,
     name: process.env.DATABASE_NAME,

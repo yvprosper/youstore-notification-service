@@ -25,6 +25,8 @@ class Application {
         console.log("Listening for messages");
       });
 
+      await this.restServer.start();
+
         // if (this.database) {
         //     await this.database.connect();
 
