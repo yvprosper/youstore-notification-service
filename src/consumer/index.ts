@@ -48,7 +48,6 @@ const channelWrapper = connection.createChannel({
             let name = message.saveCustomer.fullName
             try{
             await sendVerificationMail(email , link, name)
-            console.log(message)
 
             } catch (error) {
                 channel.nack(message)
