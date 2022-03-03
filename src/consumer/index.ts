@@ -58,11 +58,9 @@ const channelWrapper = connection.createChannel({
             let email = message.saveMerchant.email
             let name = message.saveMerchant.fullName
             let link = message.link
-            try{
+
             await sendVerificationMail(email , link, name)
-            } catch (error) {
-                channel.nack(message)
-            }
+            
         }, {noAck: true})
 
         channel.consume(`reset_customer_password`, async (messageBuffer: Message | null) => {
@@ -70,11 +68,9 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.customer.email
             let link = message.link
-            try{
+            
             await sendPasswordResetMail(email , link)
-            } catch (error) {
-                channel.nack(message)
-            }
+            
         }, {noAck: true})
 
         channel.consume(`reset_merchant_password`, async (messageBuffer: Message | null) => {
@@ -82,11 +78,9 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.merchant.email
             let link = message.link
-            try{
+            
             await sendPasswordResetMail(email , link)
-            } catch (error) {
-                channel.nack(message)
-            }
+            
         }, {noAck: true})
 
         channel.consume(`order_completed`, async (messageBuffer: Message | null) => {
@@ -96,11 +90,9 @@ const channelWrapper = connection.createChannel({
             console.log(message.order.products)
             let email = message.order.customerEmail
             let products= message.order.products
-            try{
+            
             await sendOrderCompleteMail(email , products)
-            } catch (error) {
-                channel.nack(message)
-            }
+            
         }, {noAck: true})
     }
 })

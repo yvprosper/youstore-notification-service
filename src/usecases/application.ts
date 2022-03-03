@@ -34,7 +34,7 @@ class Application {
         // this.logger.info('connecting to rabbitMq...')
         // await this.messenger.createChannel()
         
-        // await this.restServer.start();
+        await this.restServer.start();
     }
 
 }
