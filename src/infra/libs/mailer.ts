@@ -15,12 +15,12 @@ const orderCompleteTemplate= fs.readFileSync('src/views/orderComplete.handlebars
 
 //Nodemailer Transporter
 let transporter = nodemailer.createTransport({
-        host: `smtp.mailgun.org`,
+        host: "smtp.mailgun.org",
         port: 587,
         secure: false, // true for 465, false for other ports
         auth: {
-                    user: `${process.env.USER}`, // generated ethereal user
-                    pass: `${process.env.PASS}`, // generated ethereal password
+                    user: "postmaster@sandbox4706e5e4103c4859a32d397410b86f50.mailgun.org", // generated ethereal user
+                    pass: "e51b3b083867a46b60790aee085e5cd0-e2e3d8ec-d60bc02e", // generated ethereal password
                 },
 });
 
