@@ -47,12 +47,9 @@ const channelWrapper = connection.createChannel({
             let email = message.saveCustomer.email
             let link = message.link
             let name = message.saveCustomer.fullName
-            try{
+        
             await sendVerificationMail(email , link, name)
 
-            } catch (error) {
-                channel.nack(message)
-            }
         }, {noAck: true})
 
         channel.consume(`verify_merchant_email`, async (messageBuffer: Message | null) => {

@@ -103,7 +103,7 @@ export const sendOrderCompleteMail = async (email: string , products: string) =>
     text: `You have sucessfully placed an order for the following products 
 
              PRODUCTS: ${products}     
-             `, // plain text body
+             your products will be delivered in 5 days`, // plain text body
     html: `
           ${mail}
     `, // html body
