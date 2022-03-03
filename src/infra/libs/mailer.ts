@@ -3,9 +3,15 @@ import dotenv from "dotenv";
 dotenv.config()
 import logger from "../../interface/http/utils/logger"
 import fs from "fs"
-
-
 import hbs from "handlebars"
+import nodemailMailgun from 'nodemailer-mailgun-transport'
+
+const auth = {
+  auth: {
+    api_key: `${process.env.MAILGUN_API_KEY}`,
+    domain: `${process.env.MAILGUN_DOMAIN}`
+  }
+}
 
 
 //Email Templates
@@ -13,16 +19,17 @@ const welcomeTemplate = fs.readFileSync('src/views/index.handlebars', 'utf8')
 const resetTemplate =fs.readFileSync('src/views/reset.handlebars', 'utf8')
 const orderCompleteTemplate= fs.readFileSync('src/views/orderComplete.handlebars', 'utf8')
 
-let transporter = nodemailer.createTransport({
-        host: `0.0.0.0`,
-        port: 1025,
-        secure: false, // true for 465, false for other ports
-        auth: {
-                    user: `${process.env.USER}`, // generated ethereal user
-                    pass: `${process.env.PASS}`, // generated ethereal password
-                },
-});
+// let transporter = nodemailer.createTransport({
+//         host: `0.0.0.0`,
+//         port: 1025,
+//         secure: false, // true for 465, false for other ports
+//         auth: {
+//                     user: "postmaster@sandbox4706e5e4103c4859a32d397410b86f50.mailgun.org", // generated ethereal user
+//                     pass: "e51b3b083867a46b60790aee085e5cd0-e2e3d8ec-d60bc02e", // generated ethereal password
+//                 },
+// });
 
+let transporter = nodemailer.createTransport(nodemailMailgun(auth))
 
 export const sendVerificationMail = async (email: string , link: string , name: string) => {
   const options = {
