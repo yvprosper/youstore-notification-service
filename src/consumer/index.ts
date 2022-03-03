@@ -3,7 +3,7 @@ import { Channel, Message } from "amqplib";
 import dotenv from "dotenv";
 dotenv.config()
 
-import { sendVerificationMail,sendPasswordResetMail } from "../infra/libs/mailer"; //mailer
+import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail } from "../infra/libs/mailer"; //mailer
 
 import container from "../container";
 
@@ -35,6 +35,7 @@ const channelWrapper = connection.createChannel({
         channel.assertQueue(`verify_merchant_email`, { durable: true })
         channel.assertQueue(`reset_customer_password`, { durable: true })
         channel.assertQueue(`reset_merchant_password`, { durable: true })
+        channel.assertQueue(`order_completed`, { durable: false })
 
 
         //consume messages
@@ -86,6 +87,20 @@ const channelWrapper = connection.createChannel({
             let link = message.link
             try{
             await sendPasswordResetMail(email , link)
+            } catch (error) {
+                channel.nack(message)
+            }
+        }, {noAck: true})
+
+        channel.consume(`order_completed`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
+            console.log(message)
+            console.log(message.order.products)
+            let email = message.order.customerEmail
+            let products= message.order.products
+            try{
+            await sendOrderCompleteMail(email , products)
             } catch (error) {
                 channel.nack(message)
             }

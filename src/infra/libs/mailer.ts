@@ -8,13 +8,15 @@ import fs from "fs"
 import hbs from "handlebars"
 
 
-
+//Email Templates
 const welcomeTemplate = fs.readFileSync('src/views/index.handlebars', 'utf8')
 const resetTemplate =fs.readFileSync('src/views/reset.handlebars', 'utf8')
+const orderCompleteTemplate= fs.readFileSync('src/views/orderComplete.handlebars', 'utf8')
 
+//Nodemailer Transporter
 let transporter = nodemailer.createTransport({
-        host: `0.0.0.0`,
-        port: 1025,
+        host: `smtp.mailgun.org`,
+        port: 587,
         secure: false, // true for 465, false for other ports
         auth: {
                     user: `${process.env.USER}`, // generated ethereal user
@@ -22,10 +24,6 @@ let transporter = nodemailer.createTransport({
                 },
 });
 
-// transporter.use('compile', hbs({
-//   viewEngine: 'express-handlebars' ,
-//   viewPath: './views'
-// }))
 
 export const sendVerificationMail = async (email: string , link: string , name: string) => {
   const options = {
@@ -81,6 +79,31 @@ export const sendPasswordResetMail = async (email: string , link: string) => {
 
              LINK: ${link}     
              this link can only be used once and expires in 15 minutes`, // plain text body
+    html: `
+          ${mail}
+    `, // html body
+  });
+
+  logger.info("Email has been sent");
+
+}
+
+export const sendOrderCompleteMail = async (email: string , products: string) => {
+
+  const options = {
+    products: products
+  }
+
+  const mail = hbs.compile(orderCompleteTemplate)(options)  
+    // send mail with defined transport object
+    await transporter.sendMail({
+    from: '"YOUSTORE" <youstore@example.com>', // sender address
+    to: email, // list of receivers
+    subject: "Order Successful", // Subject line
+    text: `You have sucessfully placed an order for the following products 
+
+             PRODUCTS: ${products}     
+             your products will be delivered in 5 days`, // plain text body
     html: `
           ${mail}
     `, // html body

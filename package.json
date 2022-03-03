@@ -10,7 +10,7 @@
     "dev": "nodemon build/src/start.js",
     "build": "tsc",
     "postinstall": "npm run build",
-    "build:email": "mjml src/email/reset.mjml --output src/email/reset.html",
+    "build:email": "mjml src/email/orderComplete.mjml --output src/email/orderComplete.html",
     "build:html": "mjml --watch src/email/index.mjml --output src/email/index.html",
     "start": "node build/src/start.js"
   },

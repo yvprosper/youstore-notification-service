@@ -1,0 +1,45 @@
+<mjml>
+  <mj-body background-color="#46B2C8" font-size="13px">
+    <mj-section background-color="#F2FBBF" padding-bottom="0px" padding-top="0">
+      <mj-column vertical-align="top" width="100%">
+        <mj-image src="https://thumbs.dreamstime.com/b/online-shopping-banner-business-concept-sale-e-commerce-smartphone-tiny-people-character-template-web-landing-147192696.jpg" alt="" align="center" border="none" width="600px" padding-left="0px" padding-right="0px" padding-bottom="0px" padding-top="0"></mj-image>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#FFFFFF" vertical-align="top" padding-bottom="0px" padding-top="0">
+      <mj-column vertical-align="top" width="100%">
+      
+        <mj-text align="left" color="#262626" font-size="40px" font-weight="bold" font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="30px" padding-top="50px">Order Complete</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#FFFFFF" padding-bottom="20px" padding-top="20px">
+      <mj-column vertical-align="middle" width="100%">
+        <mj-text align="left" color="#262626" font-size="15px" font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px">You have sucessfully placed an order for the following products 
+          <br /><br />
+           PRODUCTS: ${products}<br /><br />
+    your products will be delivered in 5 days</mj-text>
+                <mj-text align="left" color="#262626" font-size="15px" font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px">Regards, <br /> The Youstore Team</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#1c94c8" padding-bottom="0px" padding-top="0">
+      <mj-column vertical-align="middle">
+        <mj-text align="center" font-size="20px" font-weight="bold" padding="0 25px" color="#FFFFFF">
+          <p>0800 123 456</p>
+        </mj-text>
+        <mj-text align="center" color="#FFFFFF" font-size="13px" padding="0 25px">
+          <p>Privacy policy</p>
+        </mj-text>
+      </mj-column>a
+      <mj-column vertical-align="middle">
+        <mj-image href="https://mjml.io" src="https://youstore-staging.netlify.app/_nuxt/img/login-logo.e7e0175.svg" alt="Logo yellow" width="133px" padding="0px"></mj-image>
+      </mj-column>
+      <mj-column vertical-align="middle">
+        <mj-social mode="horizontal" padding="30px">
+          <mj-social-element name="facebook" href="[[SHORT_PERMALINK]]"></mj-social-element>
+          <mj-social-element name="twitter" href="[[SHORT_PERMALINK]]"></mj-social-element>
+          <mj-social-element name="google" href="[[SHORT_PERMALINK]]"></mj-social-element>
+        </mj-social>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>
