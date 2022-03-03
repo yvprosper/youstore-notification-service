@@ -46,7 +46,7 @@ const channelWrapper = connection.createChannel({
             
             let email = message.saveCustomer.email
             let link = message.link
-            let name = message.saveCustomer.fullName
+            let name = message.saveCustomer.firstName
         
             await sendVerificationMail(email , link, name)
 
@@ -56,7 +56,7 @@ const channelWrapper = connection.createChannel({
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
             let email = message.saveMerchant.email
-            let name = message.saveMerchant.fullName
+            let name = message.saveMerchant.firstName
             let link = message.link
 
             await sendVerificationMail(email , link, name)
