@@ -3,7 +3,7 @@ import { Channel, Message } from "amqplib";
 import dotenv from "dotenv";
 dotenv.config()
 
-import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail } from "../infra/libs/mailer"; //mailer
+import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail } from "../infra/libs/mailer"; //mailer
 
 import container from "../container";
 
@@ -86,12 +86,20 @@ const channelWrapper = connection.createChannel({
         channel.consume(`order_completed`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
-            console.log(message)
-            console.log(message.order.products)
             let email = message.order.customerEmail
             let products= message.order.products
             
             await sendOrderCompleteMail(email , products)
+            
+        }, {noAck: true})
+
+        channel.consume(`order_failed`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
+            let email = message.order.customerEmail
+            let products= message.order.products
+            
+            await sendOrderFailedMail(email , products)
             
         }, {noAck: true})
     }

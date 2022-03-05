@@ -18,6 +18,7 @@ const auth = {
 const welcomeTemplate = fs.readFileSync('src/views/index.handlebars', 'utf8')
 const resetTemplate =fs.readFileSync('src/views/reset.handlebars', 'utf8')
 const orderCompleteTemplate= fs.readFileSync('src/views/orderComplete.handlebars', 'utf8')
+const orderFailedTemplate= fs.readFileSync('src/views/orderFailed.handlebars', 'utf8')
 
 // let transporter = nodemailer.createTransport({
 //         host: `0.0.0.0`,
@@ -110,6 +111,31 @@ export const sendOrderCompleteMail = async (email: string , products: string) =>
 
              PRODUCTS: ${products}     
              your products will be delivered in 5 days`, // plain text body
+    html: `
+          ${mail}
+    `, // html body
+  });
+
+  logger.info("Email has been sent");
+
+}
+
+export const sendOrderFailedMail = async (email: string , products: string) => {
+
+  const options = {
+    products: products
+  }
+
+  const mail = hbs.compile(orderFailedTemplate)(options)  
+    // send mail with defined transport object
+    await transporter.sendMail({
+    from: '"YOUSTORE" <youstore@example.com>', // sender address
+    to: email, // list of receivers
+    subject: "Order Failed", // Subject line
+    text: `Hello, Your order for the following productas failed
+
+             PRODUCTS: ${products}     
+             `, // plain text body
     html: `
           ${mail}
     `, // html body
