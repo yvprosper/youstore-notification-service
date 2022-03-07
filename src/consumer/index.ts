@@ -87,9 +87,12 @@ const channelWrapper = connection.createChannel({
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
             let email = message.order.customerEmail
-            let products= message.order.products
+            let products= message.order.products.map((item: any)=> {
+                return {name: item.Productname, quantity: item.quantity, price: item.price}
+            })
+            let orderId = message.order.orderId
             
-            await sendOrderCompleteMail(email , products)
+            await sendOrderCompleteMail(email , products, orderId)
             
         }, {noAck: true})
 
@@ -97,9 +100,12 @@ const channelWrapper = connection.createChannel({
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
             let email = message.order.customerEmail
-            let products= message.order.products
+            let products= message.order.products.map((item: any)=> {
+                return {name: item.Productname, quantity: item.quantity, price: item.price}
+            })
+            let orderId = message.order.orderId
             
-            await sendOrderFailedMail(email , products)
+            await sendOrderFailedMail(email , products, orderId)
             
         }, {noAck: true})
     }

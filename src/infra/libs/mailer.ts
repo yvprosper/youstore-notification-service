@@ -95,10 +95,11 @@ export const sendPasswordResetMail = async (email: string , link: string) => {
 
 }
 
-export const sendOrderCompleteMail = async (email: string , products: string) => {
+export const sendOrderCompleteMail = async (email: string , products: string, orderId: string) => {
 
   const options = {
-    products: products
+    products: products,
+    orderId: orderId 
   }
 
   const mail = hbs.compile(orderCompleteTemplate)(options)  
@@ -107,10 +108,12 @@ export const sendOrderCompleteMail = async (email: string , products: string) =>
     from: '"YOUSTORE" <youstore@example.com>', // sender address
     to: email, // list of receivers
     subject: "Order Successful", // Subject line
-    text: `You have sucessfully placed an order for the following products 
+    text: `We've Received Your Order
+    Hello, Thanks for shopping on Youstore! Please find a summary of your recent purchase belows 
 
              PRODUCTS: ${products}     
-             your products will be delivered in 5 days`, // plain text body
+             It usually takes up to two business days to process and ship your order,
+              you'll receive another mail from us once your order have been shipped. Your Order id is ${orderId}`, // plain text body
     html: `
           ${mail}
     `, // html body
@@ -120,10 +123,11 @@ export const sendOrderCompleteMail = async (email: string , products: string) =>
 
 }
 
-export const sendOrderFailedMail = async (email: string , products: string) => {
+export const sendOrderFailedMail = async (email: string , products: string, orderId: string) => {
 
   const options = {
-    products: products
+    products: products,
+    orderId: orderId 
   }
 
   const mail = hbs.compile(orderFailedTemplate)(options)  
@@ -132,9 +136,11 @@ export const sendOrderFailedMail = async (email: string , products: string) => {
     from: '"YOUSTORE" <youstore@example.com>', // sender address
     to: email, // list of receivers
     subject: "Order Failed", // Subject line
-    text: `Hello, Your order for the following productas failed
+    text: `Hello, Your payment failed and We couldn't process your order for the products below
 
-             PRODUCTS: ${products}     
+             PRODUCTS: ${products}    
+             
+             You can initiate this order again by providing the order ID: ${orderId}
              `, // plain text body
     html: `
           ${mail}
