@@ -88,7 +88,7 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.order.customerEmail
             let products= message.order.products.map((item: any)=> {
-                return {name: item.Productname, quantity: item.quantity, price: item.price}
+                return {name: item.name, quantity: item.quantity, price: item.price}
             })
             let orderId = message.order.orderId
             
