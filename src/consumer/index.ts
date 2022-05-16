@@ -88,9 +88,13 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.order.customerEmail
             let products= message.order.products.map((item: any)=> {
-                return {name: item.name, quantity: item.quantity, price: item.price}
+                return {name: item.name, quantity: item.quantity, price: item.price, merchantId: item.merchantId}
             })
             let orderId = message.order.orderId
+            
+            products.forEach((product: any)=> {
+                console.log(product.name)
+            })
             
             await sendOrderCompleteMail(email , products, orderId)
             
