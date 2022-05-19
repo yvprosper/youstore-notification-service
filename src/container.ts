@@ -1,6 +1,6 @@
 import { asValue, Lifetime, asClass,asFunction, InjectionMode, createContainer} from "awilix"
 import {scopePerRequest} from "awilix-express"
-import database from "./infra/database/mongoose"
+//import database from "./infra/database/mongoose"
 import router from "./interface/http/router/routes"
 import restServer from "./interface/http/server"
 import Logger from "./interface/http/utils/logger"
@@ -16,7 +16,7 @@ const container = createContainer({
 
 container.register({
     containerMiddleware: asValue(scopePerRequest(container)),
-    database: asClass(database),
+    //database: asClass(database),
     restServer: asClass(restServer),
     router: asFunction(router),
     logger: asValue(Logger),

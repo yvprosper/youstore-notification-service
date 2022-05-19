@@ -3,7 +3,7 @@ import { Channel, Message } from "amqplib";
 import dotenv from "dotenv";
 dotenv.config()
 
-import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail } from "../infra/libs/mailer"; //mailer
+import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail, sendAdminSignUpMail } from "../infra/libs/mailer"; //mailer
 
 import container from "../container";
 
@@ -29,13 +29,22 @@ connection.on("disconnect", () => logger.info("RabbitMq disconnected. Retrying..
 // Create a channel wrapper
 const channelWrapper = connection.createChannel({
     json: true,
-  setup(channel: Channel) {
+  async setup (channel: Channel) {
+
+        //Assert Exchange and Bind Queue
+        channel.assertExchange('orderEvents', 'topic')
+        channel.bindQueue('send_order_success', 'orderEvents', 'orders.status.completed')
+        channel.bindQueue('send_order_failed', 'orderEvents', 'orders.status.failed')
+
         //Assert Queues
         channel.assertQueue(`verify_customer_email`, { durable: true })
         channel.assertQueue(`verify_merchant_email`, { durable: true })
         channel.assertQueue(`reset_customer_password`, { durable: true })
         channel.assertQueue(`reset_merchant_password`, { durable: true })
-        channel.assertQueue(`order_completed`, { durable: false })
+        channel.assertQueue(`reset_admin_password`, { durable: true })
+        channel.assertQueue(`new_admin_notification`, { durable: true })
+        channel.assertQueue('send_order_success', { durable: true })
+        channel.assertQueue(`send_order_failed`, { durable: true })
 
 
         //consume messages
@@ -47,8 +56,11 @@ const channelWrapper = connection.createChannel({
             let email = message.saveCustomer.email
             let link = message.link
             let name = message.saveCustomer.firstName
-        
+        try {
             await sendVerificationMail(email , link, name)
+        } catch (error) {
+            throw error
+        }
 
         }, {noAck: true})
 
@@ -58,9 +70,24 @@ const channelWrapper = connection.createChannel({
             let email = message.saveMerchant.email
             let name = message.saveMerchant.firstName
             let link = message.link
-
+         try{
             await sendVerificationMail(email , link, name)
-            
+            } catch (error) {
+                throw error
+            }
+        }, {noAck: true})
+
+        channel.consume(`new_admin_notification`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
+            console.log(message)
+            let email = message.email
+            let link = `youstore-staging.netlify.app`
+          try{
+            await sendAdminSignUpMail(email , link)
+            } catch (error) {
+                throw error
+            }
         }, {noAck: true})
 
         channel.consume(`reset_customer_password`, async (messageBuffer: Message | null) => {
@@ -68,9 +95,11 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.customer.email
             let link = message.link
-            
+            try{
             await sendPasswordResetMail(email , link)
-            
+            } catch (error) {
+                throw error
+            }
         }, {noAck: true})
 
         channel.consume(`reset_merchant_password`, async (messageBuffer: Message | null) => {
@@ -78,14 +107,32 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             let email = message.merchant.email
             let link = message.link
-            
+           try{ 
             await sendPasswordResetMail(email , link)
-            
+            } catch (error) {
+                throw error
+            }
         }, {noAck: true})
 
-        channel.consume(`order_completed`, async (messageBuffer: Message | null) => {
+        channel.consume(`reset_admin_password`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
+            let email = message.admin.email
+            let link = message.link
+            try{
+            await sendPasswordResetMail(email , link)
+            } catch (error) {
+                throw error
+            }
+        }, {noAck: true})
+
+        channel.consume(`send_order_success`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
+
+            const routingKey = msg?.fields.routingKey
+            if (routingKey !== 'orders.status.completed') return
+
             let email = message.order.customerEmail
             let products= message.order.products.map((item: any)=> {
                 return {name: item.name, quantity: item.quantity, price: item.price, merchantId: item.merchantId}
@@ -95,22 +142,30 @@ const channelWrapper = connection.createChannel({
             products.forEach((product: any)=> {
                 console.log(product.name)
             })
-            
+            try{
             await sendOrderCompleteMail(email , products, orderId)
-            
+            } catch (error) {
+                throw error
+            }
         }, {noAck: true})
 
-        channel.consume(`order_failed`, async (messageBuffer: Message | null) => {
+        channel.consume(`send_order_failed`, async (messageBuffer: Message | null) => {
             const msg = messageBuffer;
             const message = JSON.parse(msg!.content.toString());
+
+            const routingKey = msg?.fields.routingKey
+            if (routingKey !== 'orders.status.failed') return
+
             let email = message.order.customerEmail
             let products= message.order.products.map((item: any)=> {
                 return {name: item.name, quantity: item.quantity, price: item.price}
             })
             let orderId = message.order.orderId
-            
+            try{
             await sendOrderFailedMail(email , products, orderId)
-            
+            } catch (error) {
+                throw error
+            }
         }, {noAck: true})
     }
 })

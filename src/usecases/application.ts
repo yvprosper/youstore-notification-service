@@ -10,9 +10,9 @@ class Application {
     messenger: any
 
 
-    constructor({ restServer, database, logger, config, messenger}: any) {
+    constructor({ restServer, logger, config, messenger}: any) {
         this.restServer = restServer;
-        this.database = database;
+        //this.database = database;
         this.logger = logger;
         this.config = config;
         this.messenger = messenger
