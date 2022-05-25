@@ -168,49 +168,40 @@ const channelWrapper = connection.createChannel({
             }
         }, {noAck: true})
 
-        // channel.consume(`send_new_sales_notification`, async (messageBuffer: Message | null) => {
-        //     const msg = messageBuffer;
-        //     const message = JSON.parse(msg!.content.toString());
+        channel.consume(`send_new_sales_notification`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
 
-        //     const routingKey = msg?.fields.routingKey
-        //     if (routingKey !== 'orders.status.completed') return
+            const routingKey = msg?.fields.routingKey
+            if (routingKey !== 'orders.status.completed') return
 
-            
-        //     let products= message.order.products.map((item: any)=> {
-        //         let merchantId = item.merchantId.toString()
+            let orderId = message.order.orderId
+            message.order.products.map((item: any)=> {
+                let merchantId = item.merchantId.toString()
 
-        //         const getMail = async ()=> {
-        //             try {
-        //                 const response = await axios.get(`https://youstore-users.herokuapp.com/v1/merchants/one/${merchantId}`, {
-        //                   headers: {
-        //                     Accept: "application/json",
-        //                     "User-Agent": "axios 0.21.1",
-        //                     timeout: 200000000000
-        //                   }
-        //                 });
-        //                 console.log("received response: ", response.data.data.email);
-
-        //                 const email = response.data.data.email
-        //                 const link = response.data.data.storeName
-        //                 await sendAdminSignUpMail(email , link)
-        //                 console.log(`despatched messages`)
-        //               } catch (err) {
-        //                 console.log(err);
-        //               }
-        //         }
-        //         getMail()
+                const getMail = async ()=> {
+                    try {
+                        const response = await axios.get(`https://youstore-users.herokuapp.com/v1/merchants/one/${merchantId}`, {
+                          headers: {
+                            Accept: "application/json",
+                            "User-Agent": "axios 0.21.1",
+                            timeout: 200000000000
+                          }
+                        });
+                    
+                       const email = response.data.data.email
+                       let products: any = {name: item.name, quantity: item.quantity, price: item.price}
+                        await sendOrderCompleteMail(email , products, orderId)
+                        console.log(`despatched messages`)
+                      } catch (err) {
+                        console.log(err);
+                      }
+                }
+                getMail()
                 
-                 
-                
-        //         //return {name: item.name, quantity: item.quantity, price: item.price}
-        //     })
-        //     // let orderId = message.order.orderId
-        //     // try{
-        //     // await sendOrderFailedMail(email , products, orderId)
-        //     // } catch (error) {
-        //     //     throw error
-        //     // }
-        // }, {noAck: true})
+            })
+
+        }, {noAck: true})
     }
 })
 
