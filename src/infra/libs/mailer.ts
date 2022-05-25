@@ -20,6 +20,7 @@ const resetTemplate =fs.readFileSync('src/views/reset.handlebars', 'utf8')
 const adminTemplate =fs.readFileSync('src/views/adminSignUp.handlebars', 'utf8')
 const orderCompleteTemplate= fs.readFileSync('src/views/orderComplete.handlebars', 'utf8')
 const orderFailedTemplate= fs.readFileSync('src/views/orderFailed.handlebars', 'utf8')
+const newSalesTemplate = fs.readFileSync('src/views/newSalesNotification.handlebars', 'utf8')
 
 // let transporter = nodemailer.createTransport({
 //         host: `0.0.0.0`,
@@ -152,6 +153,32 @@ export const sendOrderCompleteMail = async (email: string , products: string, or
              PRODUCTS: ${products}     
              It usually takes up to two business days to process and ship your order,
               you'll receive another mail from us once your order have been shipped. Your Order id is ${orderId}`, // plain text body
+    html: `
+          ${mail}
+    `, // html body
+  });
+
+  logger.info("Email has been sent");
+
+}
+
+export const sendNewSalesMail = async (email: string , products: string, orderId: string) => {
+
+  const options = {
+    products: products,
+    orderId: orderId 
+  }
+
+  const mail = hbs.compile(newSalesTemplate)(options)  
+    // send mail with defined transport object
+    await transporter.sendMail({
+    from: '"YOUSTORE" <youstore@example.com>', // sender address
+    to: email, // list of receivers
+    subject: "New Sales Notification", // Subject line
+    text: `Hello, The products listed below have been purchased from your store. 
+
+             PRODUCTS: ${products}     
+             Deliver them to the despatch center, for despatch to customers ${orderId}`, // plain text body
     html: `
           ${mail}
     `, // html body

@@ -4,7 +4,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config()
 
-import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail, sendAdminSignUpMail } from "../infra/libs/mailer"; //mailer
+import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail, sendAdminSignUpMail, sendNewSalesMail } from "../infra/libs/mailer"; //mailer
 
 import container from "../container";
 
@@ -191,7 +191,7 @@ const channelWrapper = connection.createChannel({
                     
                        const email = response.data.data.email
                        let products: any = {name: item.name, quantity: item.quantity, price: item.price}
-                        await sendOrderCompleteMail(email , products, orderId)
+                        await sendNewSalesMail(email , products, orderId)
                         console.log(`despatched messages`)
                       } catch (err) {
                         console.log(err);
