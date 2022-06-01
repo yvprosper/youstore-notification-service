@@ -1,9 +1,10 @@
 import amqp from "amqp-connection-manager";
 import { Channel, Message } from "amqplib";
+import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config()
 
-import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail, sendAdminSignUpMail } from "../infra/libs/mailer"; //mailer
+import { sendVerificationMail,sendPasswordResetMail, sendOrderCompleteMail, sendOrderFailedMail, sendAdminSignUpMail, sendNewSalesMail } from "../infra/libs/mailer"; //mailer
 
 import container from "../container";
 
@@ -34,6 +35,7 @@ const channelWrapper = connection.createChannel({
         //Assert Exchange and Bind Queue
         channel.assertExchange('orderEvents', 'topic')
         channel.bindQueue('send_order_success', 'orderEvents', 'orders.status.completed')
+        channel.bindQueue('send_new_sales_notification', 'orderEvents', 'orders.status.completed')
         channel.bindQueue('send_order_failed', 'orderEvents', 'orders.status.failed')
 
         //Assert Queues
@@ -45,6 +47,7 @@ const channelWrapper = connection.createChannel({
         channel.assertQueue(`new_admin_notification`, { durable: true })
         channel.assertQueue('send_order_success', { durable: true })
         channel.assertQueue(`send_order_failed`, { durable: true })
+        channel.assertQueue(`send_new_sales_notification`, { durable: true })
 
 
         //consume messages
@@ -82,7 +85,7 @@ const channelWrapper = connection.createChannel({
             const message = JSON.parse(msg!.content.toString());
             console.log(message)
             let email = message.email
-            let link = `youstore-staging.netlify.app`
+            let link = `youstore-staging.netlify.app/admin/create-admin`
           try{
             await sendAdminSignUpMail(email , link)
             } catch (error) {
@@ -138,10 +141,7 @@ const channelWrapper = connection.createChannel({
                 return {name: item.name, quantity: item.quantity, price: item.price, merchantId: item.merchantId}
             })
             let orderId = message.order.orderId
-            
-            products.forEach((product: any)=> {
-                console.log(product.name)
-            })
+
             try{
             await sendOrderCompleteMail(email , products, orderId)
             } catch (error) {
@@ -166,6 +166,41 @@ const channelWrapper = connection.createChannel({
             } catch (error) {
                 throw error
             }
+        }, {noAck: true})
+
+        channel.consume(`send_new_sales_notification`, async (messageBuffer: Message | null) => {
+            const msg = messageBuffer;
+            const message = JSON.parse(msg!.content.toString());
+
+            const routingKey = msg?.fields.routingKey
+            if (routingKey !== 'orders.status.completed') return
+
+            let orderId = message.order.orderId
+            message.order.products.map((item: any)=> {
+                let merchantId = item.merchantId.toString()
+
+                const getMail = async ()=> {
+                    try {
+                        const response = await axios.get(`https://youstore-users.herokuapp.com/v1/merchants/one/${merchantId}`, {
+                          headers: {
+                            Accept: "application/json",
+                            "User-Agent": "axios 0.21.1",
+                            timeout: 200000000000
+                          }
+                        });
+                    
+                       const email = response.data.data.email
+                       let products: any = {name: item.name, quantity: item.quantity, price: item.price}
+                        await sendNewSalesMail(email , products, orderId)
+                        console.log(`despatched messages`)
+                      } catch (err) {
+                        console.log(err);
+                      }
+                }
+                getMail()
+                
+            })
+
         }, {noAck: true})
     }
 })
