@@ -1,4 +1,4 @@
-# Youstore User Service
+# Youstore Notification Service
 
 RESTful API with Domain Driven Design
 
